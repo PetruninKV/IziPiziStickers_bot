@@ -4,3 +4,4 @@ __pycache__/
 .idea/
 config.py
 testcode.py
+mybot.py
