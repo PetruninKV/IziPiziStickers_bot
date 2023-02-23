@@ -45,7 +45,12 @@ def answer_for_photo(message):
     photo.send_res()
 
 
-bot.infinity_polling()
+def main():
+    bot.infinity_polling()
+
+
+if __name__ == '__main__':
+    main()
 
 
 
