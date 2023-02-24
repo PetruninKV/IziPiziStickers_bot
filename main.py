@@ -31,7 +31,7 @@ def answer_for_text(message):
 
 @bot.message_handler(content_types=['document'])
 def answer_for_document(message):
-    doc = answers.Document(bot, message)
+    doc = answers.Documents(bot, message)
     doc.send_error()
 
 

@@ -6,6 +6,7 @@ from rembg import remove
 from PIL import Image
 import io
 from dataclasses import dataclass
+from random import randint
 
 
 @dataclass
@@ -28,7 +29,6 @@ class Comands(Initialization):
         self.bot.send_message(self.message.chat.id, start_mess, parse_mode='html', reply_markup=markup)
         self.bot.send_sticker(self.message.chat.id, config.Stiсker_id.stick_welcome)
 
-    
     def finish(self):
         self.bot.send_message(self.message.chat.id, 'Накхвамдис')
 
@@ -37,11 +37,10 @@ class Text(Initialization):
     
     def send_instruction(self):
         self.bot.send_message(self.message.chat.id, 'Подготавливаю твои фото. А именно - убираю фон, делаю нужный размер. Вот пример:')
-        with open('photo.jpg', 'rb') as photo:
+        with open('./test_photo/photo.jpg', 'rb') as photo:
             self.bot.send_photo(self.message.chat.id, photo,  caption='Ты отправляешь мне обычное фото')    
-        with open('for_stick_file.png', 'rb') as photo:
+        with open('./test_photo/test_for_stick_file.png', 'rb') as photo:
             self.bot.send_document(self.message.chat.id, photo, caption='я тебе возвращаю файл  подходящий для создания стикера')        
-
 
     def send_about_me(self):
         mes = """Чтобы сделать набор со своими стикерами, тебе необходимо написать моему братишке @Stickers. Там все интуитивно понятно:
@@ -54,7 +53,6 @@ class Text(Initialization):
         """
         self.bot.send_message(self.message.chat.id, mes, parse_mode='html')        
     
-
     def send_github(self):
         mes1 = """Я volvo среди авто
 Я огнетушитель во время пожара
@@ -68,12 +66,13 @@ class Text(Initialization):
         self.bot.send_message(self.message.chat.id, mes1)
         self.bot.send_message(self.message.chat.id, mes2, reply_markup=markup)        
 
-
     def send_location(self):
-        self.bot.send_location(self.message.chat.id, 41.64207, 41.61689)
-        self.bot.send_message(self.message.chat.id, 'я здесь, любимка ❤️')            
+        self.bot.send_message(self.message.chat.id, 'Я то тут, то там. Кручусь, верчусь')
+        location_latitude =  randint(-60, 60) + randint(20000, 70000) * 0.00001
+        location_longitude =  randint(-60, 60) + randint(20000, 70000) * 0.00001
+        self.bot.send_location(self.message.chat.id, location_latitude, location_longitude)
+        self.bot.send_message(self.message.chat.id, 'сейчас здесь, любимка ❤️')            
     
-
     def other_question(self):
         self.bot.send_message(self.message.chat.id, 'Не понимать тебя. Пока что я не такой умный как ChapGPT.')
         markup = types.InlineKeyboardMarkup()
@@ -81,7 +80,7 @@ class Text(Initialization):
         self.bot.send_message(self.message.chat.id, 'Если хочется поболать с умным:', reply_markup=markup)        
 
 
-class Document(Initialization):
+class Documents(Initialization):
 
     def send_error(self):
         self.bot.send_message(self.message.chat.id, 'Не понимать тебя. Пока что я не такой умный как ChapGPT.')
@@ -99,7 +98,6 @@ class Photos(Initialization):
     def send_first_reaction(self):
         self.bot.send_message(self.message.chat.id, 'вау, какое фото!')
 
-
     def send_processing(self):
         self.bot.send_message(self.message.chat.id, '<i>идет обработка...</i> 💡', parse_mode='html')
         self.bot.send_sticker(self.message.chat.id, config.Stiсker_id.stick_processing)        
@@ -115,12 +113,9 @@ class Photos(Initialization):
         file_url = f'https://api.telegram.org/file/bot{self.bot.token}/{file_info.file_path}'
         self._file_content = requests.get(file_url, verify=False).content        
 
-
     def del_background(self):
         self._file_content = remove(self._file_content)
-        print('background', type(self._file_content))
         
-
     def rescaling(self):
         im = Image.open(io.BytesIO(self._file_content))
         weight, height = im.size
@@ -144,7 +139,6 @@ class Photos(Initialization):
             image_bytes = f.getvalue()
             self._file_content = image_bytes
         
-
     def send_res(self):
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton('Перешли фото @Stickers', switch_inline_query='Инструкция' )) 
