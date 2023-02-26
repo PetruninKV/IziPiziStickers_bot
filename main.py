@@ -1,9 +1,11 @@
-import config
+from dotenv import load_dotenv
 import telebot
 import answers
+import os
 
 
-bot = telebot.TeleBot(config.token)
+token = os.getenv('TOKEN')
+bot = telebot.TeleBot(token)
 
 
 @bot.message_handler(commands=['start', 'finish'])
@@ -47,6 +49,7 @@ def answer_for_photo(message):
 
 def main():
     bot.infinity_polling()
+    load_dotenv()
 
 
 if __name__ == '__main__':
