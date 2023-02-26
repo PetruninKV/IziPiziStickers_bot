@@ -1,6 +1,6 @@
 import telebot
 from telebot import types
-import config
+import os
 import requests
 from rembg import remove
 from PIL import Image
@@ -14,7 +14,8 @@ from time import sleep
 class Initialization:
     bot: telebot.TeleBot
     message: telebot.types.Message
-
+    welcome_stick = os.getenv('TOKEN_stick_welcome')
+    processing_stick = os.getenv('TOKEN_stick_processing')
     
 class Comands(Initialization):
     
@@ -30,7 +31,7 @@ class Comands(Initialization):
         self.bot.send_message(self.message.chat.id, start_mess, parse_mode='html', reply_markup=markup)
         sleep(3)
 
-        self.bot.send_sticker(self.message.chat.id, config.Stiсker_id.stick_welcome)
+        self.bot.send_sticker(self.message.chat.id, self.welcome_stick)
        
         murkup2 = types.InlineKeyboardMarkup()
         murkup2.add(types.InlineKeyboardButton('Хочешь собственные?', url='https://t.me/Stickers'))
@@ -111,7 +112,7 @@ class Photos(Initialization):
 
     def send_processing(self):
         self.bot.send_message(self.message.chat.id, '<i>идет обработка...</i> 💡', parse_mode='html')
-        self.bot.send_sticker(self.message.chat.id, config.Stiсker_id.stick_processing)        
+        self.bot.send_sticker(self.message.chat.id, self.processing_stick)        
 
     @property
     def photo(self):
@@ -144,7 +145,6 @@ class Photos(Initialization):
                 new_weight = int(512  * weight / height)
                 new_height = 512
         resize_photo = im.resize((new_weight, new_height))
-        r = resize_photo.tobytes()
         with io.BytesIO() as f:
             resize_photo.save(f, format='PNG')
             image_bytes = f.getvalue()

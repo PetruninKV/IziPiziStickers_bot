@@ -2,6 +2,7 @@
 __pycache__/
 .vscode/
 .idea/
-config.py
-testcode.py
-mybot.py
+*.log
+*.env
+/env
+/temp
