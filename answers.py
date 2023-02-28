@@ -8,7 +8,10 @@ import io
 from dataclasses import dataclass
 from random import randint
 from time import sleep
+from dotenv import load_dotenv
 
+
+load_dotenv()
 
 @dataclass
 class Initialization:
