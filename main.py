@@ -3,7 +3,7 @@ import telebot
 import answers
 import os
 
-
+load_dotenv()
 token = os.getenv('TOKEN')
 bot = telebot.TeleBot(token)
 
@@ -49,7 +49,6 @@ def answer_for_photo(message):
 
 def main():
     bot.infinity_polling()
-    load_dotenv()
 
 
 if __name__ == '__main__':
