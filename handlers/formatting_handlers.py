@@ -15,7 +15,7 @@ router: Router = Router()
 config: Config = load_config()
 
 
-@router.message(Command(commands='photo_to_png'))
+@router.message(Command(commands='formatting'))
 async def proc_photo_to_png_command(message: Message):
     await message.answer(text='Отлично! Отправь мне фото')
 
