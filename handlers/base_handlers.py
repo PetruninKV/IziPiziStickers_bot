@@ -1,11 +1,11 @@
-from aiogram import Router
-from aiogram.filters import CommandStart, Command, Text
-from aiogram.types import Message
+from time import sleep
 
-from lexicon.lexicon import LEXICON_MESSAGE, LEXICON_KEYBOARD
+from aiogram import Router
+from aiogram.filters import CommandStart, Command
+from aiogram.types import Message, BufferedInputFile
+
+from lexicon.lexicon import LEXICON_MESSAGE
 from config_data.config import Config, load_config
-from key_boards.start_keyboard import creat_start_keyboard
-from services.services import get_point_location
 
 config: Config = load_config()
 
@@ -16,30 +16,43 @@ router: Router = Router()
 async def proc_statr_command(message: Message):
     await message.answer(text=LEXICON_MESSAGE['/start'])
     await message.answer_sticker(sticker=config.object_id.welcome_stick)
-    await message.answer(text=LEXICON_MESSAGE['/start continue'],
-                         reply_markup=creat_start_keyboard(
-                             'instruction', 'about you', 'security', 'location'
-                         ))
-
-@router.message(Text(text=LEXICON_KEYBOARD['instruction']))
-async def proc_mes_instruction(message: Message):
-    await message.answer(text=LEXICON_MESSAGE['instruction'])
-
-@router.message(Text(text=LEXICON_KEYBOARD['about you']))
-async def proc_mes_about_you(message: Message):
-    pass
-
-@router.message(Text(text=LEXICON_KEYBOARD['security']))
-async def proc_mes_security(message: Message):
-    await message.answer(text=LEXICON_MESSAGE['security'])
+    await message.answer(text=LEXICON_MESSAGE['/start continue'])
 
 
+@router.message(Command(commands='instruction'))
+async def proc_desc_command(message: Message):
+    await message.answer(text=LEXICON_MESSAGE['/instruction'])
 
-@router.message(Text(text=LEXICON_KEYBOARD['location']))
-async def proc_mes_location(message: Message):
-    await message.answer(text=LEXICON_MESSAGE['location'])
-    await message.answer_location(latitude=get_point_location(),
-                                  longitude=get_point_location(),
-                                  horizontal_accuracy=150,
-                                  protect_content=True)
 
+@router.message(Command(commands='about'))
+async def proc_about_command(message: Message):
+    await message.answer(text=LEXICON_MESSAGE['/about'])
+
+
+@router.message(Command(commands='demo'))
+async def proc_demo_command(message: Message):
+    await message.answer(text=LEXICON_MESSAGE['/demo'])
+    sleep(1)
+    buff_file_in = BufferedInputFile.from_file(path='./test_photo/photo.jpg',
+                                               filename='input_file.jpg')
+    await message.answer_photo(photo=buff_file_in, caption='До обработки - .jpg 1280x861 px')
+    sleep(1)
+    buff_file_out = BufferedInputFile.from_file(path='./test_photo/file_for_@sticker.png',
+                                                filename='file_for_@sticker.png')
+    await message.answer_document(document=buff_file_out, caption='После обработки - .png 512x344 px')
+    await message.answer(text=LEXICON_MESSAGE['/demo continue'])
+
+
+@router.message(Command(commands='privacy'))
+async def proc_privacy_command(message: Message):
+    await message.answer(text=LEXICON_MESSAGE['/privacy'])
+
+
+@router.message(Command(commands='lang'))
+async def proc_lang_command(message: Message):
+    await message.answer(text=LEXICON_MESSAGE['/lang'])
+
+
+@router.message(Command(commands='help'))
+async def proc_help_command(message: Message):
+    await message.answer(text=LEXICON_MESSAGE['/help'])
