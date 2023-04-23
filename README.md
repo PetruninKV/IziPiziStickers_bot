@@ -5,7 +5,8 @@ stickers.
 
 ## Features
 
-The best part is that users can create their own stickers without the need for any additional software
+The best part is that users can create their own stickers without the need for any additional software. 
+
 The bot receives images or file from users and converts them into .png format that has no background and doesn't exceed
 512x512
 resolution - these are the necessary requirements for creating stickers. All that's left for you to do is to forward the
