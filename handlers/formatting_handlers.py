@@ -3,8 +3,14 @@ import asyncio
 
 from aiogram import Router, F
 from aiogram.filters import Command
-from aiogram.types import Message, PhotoSize, BufferedInputFile
+from aiogram.types import Message, BufferedInputFile
 from services.convert import photo_processing
+
+# FSM
+from aiogram.filters import StateFilter
+from aiogram.filters.state import State, StatesGroup
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import default_state
 
 from lexicon.lexicon import LEXICON_MESSAGE
 from config_data.config import load_config, Config
@@ -15,12 +21,18 @@ router: Router = Router()
 config: Config = load_config()
 
 
+class FSMFormatting(StatesGroup):
+    work_on = State()
+
+
 @router.message(Command(commands='formatting'))
-async def proc_photo_to_png_command(message: Message):
-    await message.answer(text='Отлично! Отправь мне фото')
+async def proc_photo_to_png_command(message: Message, state: FSMContext):
+    await message.answer(text=LEXICON_MESSAGE['/formatting'])
+    await state.set_state(FSMFormatting.work_on)
+    await message.answer(text=LEXICON_MESSAGE['/formatting_continue'])
 
 
-@router.message(F.photo[-1].file_id.as_('file_id'))
+@router.message(F.photo[-1].file_id.as_('file_id'), StateFilter(FSMFormatting.work_on))
 @router.message(F.document, IsPhotoDoc())
 async def convert_photo(message: Message, file_id: str):
     text = random.choice(LEXICON_MESSAGE['reaction_to_photo'])
@@ -32,3 +44,14 @@ async def convert_photo(message: Message, file_id: str):
     text_file = BufferedInputFile(file=file_content, filename="file_for_@sticker.png")
     await  message.answer_document(document=text_file)
     await message.answer(text=LEXICON_MESSAGE['finish'])
+
+
+@router.message(Command(commands='stop_formatting'), StateFilter(FSMFormatting.work_on))
+async def proc_stop_format_command(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer(text=LEXICON_MESSAGE['/stop_formatting'])
+
+
+@router.message(StateFilter(FSMFormatting.work_on))
+async def proc_stop_format_command(message: Message, state: FSMContext):
+    await message.answer(text=LEXICON_MESSAGE['formatting_work_on'])
