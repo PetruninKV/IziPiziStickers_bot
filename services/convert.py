@@ -49,6 +49,10 @@ class PhotoRender:
             else:
                 self._width = int(self.MAX_SIZE * width / height)
                 self._height = self.MAX_SIZE
+        else:
+            self._width = width
+            self._height = height
+
 
     def rescaling(self):
         im = Image.open(io.BytesIO(self.file))
