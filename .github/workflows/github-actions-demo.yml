@@ -15,4 +15,4 @@ jobs:
           push: false
           tags: izipizibot
       - name: Start Docker container
-        run: docker run -it izipizibot
+        run: docker run -d izipizibot
