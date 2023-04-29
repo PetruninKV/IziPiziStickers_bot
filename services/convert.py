@@ -8,7 +8,7 @@ from PIL import Image
 import requests
 from requests.exceptions import RequestException, HTTPError, ConnectionError
 
-from config_data.config import load_config, Config
+from config_data.config import Config, load_config
 
 config: Config = load_config()
 
@@ -23,18 +23,6 @@ class PhotoRender:
         self._height: int = 0
         self._fl_resize: bool = False
 
-    async def get_file(self) -> None:
-        file_info: File = await GetFile(file_id=self._file_id)
-        file_url = f'https://api.telegram.org/file/bot{config.tg_bot.token}/{file_info.file_path}'
-        try:
-            response = requests.get(file_url)
-            response.raise_for_status()
-            self._file = response.content
-        except HTTPError as e:
-            raise RequestException(f"Ошибка чтения: {e}")
-        except ConnectionError:
-            raise ConnectionError("Ошибка подключения")
-
     @property
     def file(self) -> bytes:
         return self._file
@@ -42,6 +30,18 @@ class PhotoRender:
     @property
     def size(self) -> tuple[int, int]:
         return self._width, self._height
+
+    async def get_file(self) -> None | RequestException | ConnectionError:
+        file_info: File = await GetFile(file_id=self._file_id)
+        file_url = f'https://api.telegram.org/file/bot{config.tg_bot.token}/{file_info.file_path}'
+        try:
+            response = requests.get(file_url, timeout=3)
+            response.raise_for_status()
+            self._file = response.content
+        except HTTPError as e:
+            raise RequestException(f"Ошибка чтения: {e}")
+        except ConnectionError:
+            raise ConnectionError("Ошибка подключения")
 
     def remove_background(self) -> None:
         self._file = remove(self.file)
@@ -83,5 +83,5 @@ async def photo_processing(file_id: str) -> bytes | str:
         photo.get_size()
         photo.rescaling()
     except (RequestException, ConnectionError):
-        return f'Сетевая ошибка. Не удалось получить изображение. Попробуйте позже.'
+        return 'Сетевая ошибка. Не удалось получить изображение. Попробуйте позже.'
     return photo.file

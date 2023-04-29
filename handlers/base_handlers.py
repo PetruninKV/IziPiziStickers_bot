@@ -1,11 +1,12 @@
 from time import sleep
 
 from aiogram import Router
-from aiogram.filters import CommandStart, Command
-from aiogram.types import Message, BufferedInputFile
+from aiogram.filters import Command, CommandStart
+from aiogram.types import BufferedInputFile, Message
+
+from config_data.config import Config, load_config
 
 from lexicon.lexicon import LEXICON_MESSAGE
-from config_data.config import Config, load_config
 
 config: Config = load_config()
 
@@ -42,9 +43,11 @@ async def proc_demo_command(message: Message):
     await message.answer_document(document=buff_file_out, caption='После обработки - .png 512x344 px')
     await message.answer(text=LEXICON_MESSAGE['/demo continue'])
 
+
 @router.message(Command(commands='stop_formatting'))
 async def proc_stop_formatting_command(message: Message):
     await message.answer(text=LEXICON_MESSAGE['/stop_formatting_error'])
+
 
 @router.message(Command(commands='privacy'))
 async def proc_privacy_command(message: Message):
