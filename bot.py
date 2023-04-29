@@ -5,7 +5,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from config_data.config import Config, load_config
-from handlers import  base_handlers, other_handlers, formatting_handlers
+from handlers import base_handlers, formatting_handlers, other_handlers
 from key_boards.main_menu import set_main_menu
 
 logger = logging.getLogger(__name__)

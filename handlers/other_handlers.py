@@ -7,6 +7,7 @@ from filters.my_filters import IsPhotoDoc
 
 router: Router = Router()
 
+
 @router.message(F.photo)
 @router.message(F.document, IsPhotoDoc())
 async def proc_photo_or_doc_mes(message: Message):
@@ -16,5 +17,3 @@ async def proc_photo_or_doc_mes(message: Message):
 @router.message(Text)
 async def proc_other_mess(message: Message):
     await message.answer(text=LEXICON_MESSAGE['other_mess'])
-
-
