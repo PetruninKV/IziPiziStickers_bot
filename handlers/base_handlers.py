@@ -16,8 +16,9 @@ router: Router = Router()
 @router.message(CommandStart())
 async def proc_statr_command(message: Message):
     await message.answer(text=LEXICON_MESSAGE['/start'])
-    await message.answer_sticker(sticker=config.object_id.welcome_stick)
-    await message.answer(text=LEXICON_MESSAGE['/start continue'])
+    if config.object_id.welcome_stick:
+        await message.answer_sticker(sticker=config.object_id.welcome_stick)
+        await message.answer(text=LEXICON_MESSAGE['/start continue'])
 
 
 @router.message(Command(commands='instruction'))
