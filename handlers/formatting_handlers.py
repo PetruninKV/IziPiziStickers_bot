@@ -38,7 +38,8 @@ async def convert_photo(message: Message, file_id: str):
     await message.answer(text=text)
     await asyncio.sleep(1)
     await message.answer(text=LEXICON_MESSAGE['processing'])
-    await message.answer_sticker(sticker=config.object_id.processing_stick)
+    if config.object_id.processing_stick:
+        await message.answer_sticker(sticker=config.object_id.processing_stick)
     file_content: bytes | str = await photo_processing(file_id)
     if isinstance(file_content, bytes):
         text_file = BufferedInputFile(file=file_content, filename="file_for_@sticker.png")
