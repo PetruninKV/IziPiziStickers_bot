@@ -5,8 +5,8 @@ from aiogram.types import File
 
 from rembg import remove
 from PIL import Image
-# import requests
-# from requests.exceptions import RequestException, HTTPError, ConnectionError
+import requests
+from requests.exceptions import RequestException, HTTPError, ConnectionError
 
 from config_data.config import Config, load_config
 

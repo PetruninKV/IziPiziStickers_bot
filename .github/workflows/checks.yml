@@ -19,8 +19,8 @@ jobs:
       - name: Set up environment variables
         run: |
           echo "TOKEN=${{ secrets.TOKEN }}" >> $GITHUB_ENV
-          echo "TOKEN_PROCESSING_STICK=${{ secrets.TOKEN_PROCESSING_STICK }}" >> $GITHUB_ENV
-          echo "TOKEN_WELCOME_STICK=${{ secrets.TOKEN_WELCOME_STICK }}" >> $GITHUB_ENV
+          echo "TOKEN_welcome_stick=${{ secrets.TOKEN_welcome_stick }}" >> $GITHUB_ENV
+          echo "TOKEN_processing_stick=${{ secrets.TOKEN_processing_stick }}" >> $GITHUB_ENV
       - name: Run flake8
         run: flake8
       - name: Run pytest
