@@ -2,7 +2,7 @@
 
 ## IziPiziStickers
 
-![IziPiziStickers](https://t.me/make_photo_for_sticker_bot) - this Telegram bot helps users create their own custom
+[IziPiziStickers](https://t.me/make_photo_for_sticker_bot) - this Telegram bot helps users create their own custom
 stickers.
 
 ## Features
