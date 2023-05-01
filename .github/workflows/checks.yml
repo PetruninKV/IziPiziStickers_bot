@@ -1,4 +1,4 @@
-name: checks lint and flake8
+name: Code checks
 on: [push]
 
 jobs:
