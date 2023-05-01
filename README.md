@@ -1,6 +1,8 @@
+[![Build status](https://github.com/PetruninKV/telebot_make_foto_for_sticker/actions/workflows/checks.yml/badge.svg?branch=master)](https://github.com/PetruninKV/telebot_make_foto_for_sticker/actions/workflows/checks.yml)
+
 ## IziPiziStickers
 
-[IziPiziStickers](https://t.me/make_photo_for_sticker_bot) - this Telegram bot helps users create their own custom
+![IziPiziStickers](https://t.me/make_photo_for_sticker_bot) - this Telegram bot helps users create their own custom
 stickers.
 
 ## Features
