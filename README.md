@@ -1,6 +1,6 @@
 [![Build status](https://github.com/PetruninKV/telebot_make_foto_for_sticker/actions/workflows/checks.yml/badge.svg?branch=master)](https://github.com/PetruninKV/telebot_make_foto_for_sticker/actions/workflows/checks.yml)
 
-## IziPiziStickers
+## IziPiziStickers [![Telegram bot](https://img.shields.io/badge/bot-online-success?style=plastick&logo=telegram&labelColor=FCFCFC)](https://t.me/make_photo_for_sticker_bot)
 
 [IziPiziStickers](https://t.me/make_photo_for_sticker_bot) - this Telegram bot helps users create their own custom
 stickers.
