@@ -10,4 +10,4 @@ RUN mkdir -p /root/.u2net && \
     wget https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2net.onnx \
     -O /root/.u2net/u2net.onnx
 
-CMD ["python3.10", "bot.py"]
+CMD ["python3.10", "bot/bot.py"]

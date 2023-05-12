@@ -35,11 +35,11 @@ async def proc_about_command(message: Message):
 async def proc_demo_command(message: Message):
     await message.answer(text=LEXICON_MESSAGE['/demo'])
     sleep(2)
-    buff_file_in = BufferedInputFile.from_file(path='./example_photo/photo.jpg',
+    buff_file_in = BufferedInputFile.from_file(path='bot/example_photo/photo.jpg',
                                                filename='input_file.jpg')
     await message.answer_photo(photo=buff_file_in, caption='До обработки - .jpg 1280x861 px')
     sleep(2)
-    buff_file_out = BufferedInputFile.from_file(path='./example_photo/file_for_@sticker.png',
+    buff_file_out = BufferedInputFile.from_file(path='bot/example_photo/file_for_@sticker.png',
                                                 filename='file_for_@sticker.png')
     await message.answer_document(document=buff_file_out, caption='После обработки - .png 512x344 px')
     await message.answer(text=LEXICON_MESSAGE['/demo continue'])
