@@ -1,7 +1,7 @@
 import asyncio
 import random
 
-from aiogram import F, Router
+from aiogram import F, Router, Bot
 from aiogram.filters import Command
 from aiogram.types import BufferedInputFile, Message
 
@@ -33,13 +33,13 @@ async def proc_photo_to_png_command(message: Message, state: FSMContext):
 
 @router.message(F.photo[-1].file_id.as_('file_id'), StateFilter(FSMFormatting.work_on))
 @router.message(F.document, IsPhotoDoc())
-async def convert_photo(message: Message, file_id: str):
+async def convert_photo(message: Message, file_id: str, bot: Bot):
     text = random.choice(LEXICON_MESSAGE['reaction_to_photo'])  # noqa: S311
     await message.answer(text=text)
     await asyncio.sleep(1)
-    await message.answer(text=LEXICON_MESSAGE['processing'])
     if config.object_id.processing_stick:
         await message.answer_sticker(sticker=config.object_id.processing_stick)
+    await bot.send_chat_action(chat_id=message.from_user.id, action="upload_document")
     file_content: bytes | str = await photo_processing(file_id)
     if isinstance(file_content, bytes):
         text_file = BufferedInputFile(file=file_content, filename="file_for_@sticker.png")
