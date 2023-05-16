@@ -7,9 +7,9 @@ from aiogram.types import BufferedInputFile, Message
 
 # FSM
 from aiogram.filters import StateFilter
-from aiogram.filters.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 
+from state.fsm import FSMFormatting
 from lexicon.lexicon import LEXICON_MESSAGE
 from config_data.config import Config, load_config
 from filters.my_filters import IsPhotoDoc
@@ -21,18 +21,6 @@ router: Router = Router()
 
 
 config: Config = load_config()
-
-
-class FSMFormatting(StatesGroup):
-    work_on = State()
-
-
-# TODO: перенести в base_handlers
-@router.message(Command(commands='formatting'))
-async def proc_photo_to_png_command(message: Message, state: FSMContext):
-    await message.answer(text=LEXICON_MESSAGE['/formatting'])
-    await state.set_state(FSMFormatting.work_on)
-    await message.answer(text=LEXICON_MESSAGE['/formatting_continue'])
 
 
 @router.message(F.photo[-1].file_id.as_('file_id'),
@@ -67,7 +55,6 @@ async def proc_stop_format_command(message: Message, state: FSMContext):
     await message.answer(text=LEXICON_MESSAGE['/stop_formatting'])
 
 
-# TODO: редактировать хендлер для /formatting | Text, StateFilter(FSMFormatting.work_on)
 @router.message(StateFilter(FSMFormatting.work_on))
 async def proc_stop_format_command_not_possible(message: Message):
     await message.answer(text=LEXICON_MESSAGE['formatting_work_on'])

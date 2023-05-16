@@ -3,7 +3,9 @@ from time import sleep
 from aiogram import Router, Bot
 from aiogram.filters import Command, CommandStart
 from aiogram.types import BufferedInputFile, Message
+from aiogram.fsm.context import FSMContext
 
+from state.fsm import FSMFormatting
 from config_data.config import Config, load_config
 from lexicon.lexicon import LEXICON_MESSAGE
 
@@ -48,6 +50,13 @@ async def proc_demo_command(message: Message, bot: Bot):
     await message.answer_document(document=buff_file_out,
                                   caption='После обработки - .png 512x344 px')
     await message.answer(text=LEXICON_MESSAGE['/demo continue'])
+
+
+@router.message(Command(commands='formatting'))
+async def proc_photo_to_png_command(message: Message, state: FSMContext):
+    await message.answer(text=LEXICON_MESSAGE['/formatting'])
+    await state.set_state(FSMFormatting.work_on)
+    await message.answer(text=LEXICON_MESSAGE['/formatting_continue'])
 
 
 @router.message(Command(commands='stop_formatting'), flags=flag)
