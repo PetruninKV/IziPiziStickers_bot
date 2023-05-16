@@ -67,3 +67,8 @@ LEXICON_MENU: dict[str, str] = {
 LEXICON_KEYBOARD: dict[str, str] = {
     'forward': 'переслать сообщение',
 }
+
+LEXICON_MIDDLEWARES: dict[str, str] = {
+    'formatting': 'Мы обнаружили подозрительную активность. Для обработки нового фото подождите 10 секунд.',
+    'default': 'Подозрительная активность.'
+}
