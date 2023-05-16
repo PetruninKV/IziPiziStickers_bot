@@ -1,7 +1,7 @@
 import asyncio
 import random
 
-from aiogram import F, Router, Bot, flags
+from aiogram import F, Router, Bot
 from aiogram.filters import Command
 from aiogram.types import BufferedInputFile, Message
 
@@ -26,6 +26,7 @@ config: Config = load_config()
 class FSMFormatting(StatesGroup):
     work_on = State()
 
+
 # TODO: перенести в base_handlers
 @router.message(Command(commands='formatting'))
 async def proc_photo_to_png_command(message: Message, state: FSMContext):
@@ -44,7 +45,7 @@ async def proc_photo_to_png_command(message: Message, state: FSMContext):
 async def convert_photo(message: Message, file_id: str, bot: Bot):
     text = random.choice(LEXICON_MESSAGE['reaction_to_photo'])  # noqa: S311
     await message.answer(text=text)
-    await asyncio.sleep(1) #TODO: убрать
+    await asyncio.sleep(1)  # TODO: убрать
     if config.object_id.processing_stick:
         await message.answer_sticker(sticker=config.object_id.processing_stick)
     await bot.send_chat_action(chat_id=message.from_user.id,
@@ -66,7 +67,7 @@ async def proc_stop_format_command(message: Message, state: FSMContext):
     await message.answer(text=LEXICON_MESSAGE['/stop_formatting'])
 
 
-#TODO: редактировать хендлер для /formatting | Text, StateFilter(FSMFormatting.work_on)
+# TODO: редактировать хендлер для /formatting | Text, StateFilter(FSMFormatting.work_on)
 @router.message(StateFilter(FSMFormatting.work_on))
 async def proc_stop_format_command_not_possible(message: Message):
     await message.answer(text=LEXICON_MESSAGE['formatting_work_on'])
