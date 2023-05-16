@@ -13,7 +13,6 @@ class ThrottlingMiddleware(BaseMiddleware):
         'formatting': TTLCache(maxsize=10_000, ttl=10),
         'default': TTLCache(maxsize=10_000, ttl=1),
         'flood': TTLCache(maxsize=10_000, ttl=20),
-
     }
 
     async def __call__(

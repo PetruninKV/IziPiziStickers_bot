@@ -8,6 +8,7 @@ from config_data.config import Config, load_config
 from handlers import base_handlers, formatting_handlers, other_handlers
 from key_boards.main_menu import set_main_menu
 from middlewares.throttling import ThrottlingMiddleware
+from middlewares.blacklist import BlackListMiddleware
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +35,7 @@ async def main():
     dp.include_router(base_handlers.router)
     dp.include_router(other_handlers.router)
 
+    dp.message.outer_middleware(BlackListMiddleware())
     dp.message.middleware(ThrottlingMiddleware())
 
     await bot.delete_webhook(drop_pending_updates=True)
