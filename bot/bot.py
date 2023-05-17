@@ -5,7 +5,7 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from config_data.config import Config, load_config
-from handlers import base_handlers, formatting_handlers, other_handlers
+from handlers import adminmode, base_handlers, formatting_handlers, other_handlers
 from key_boards.main_menu import set_main_menu
 from middlewares.throttling import ThrottlingMiddleware
 from middlewares.blacklist import BlackListMiddleware
@@ -31,6 +31,7 @@ async def main():
 
     await set_main_menu(bot)
 
+    dp.include_router(adminmode.router)
     dp.include_router(formatting_handlers.router)
     dp.include_router(base_handlers.router)
     dp.include_router(other_handlers.router)
