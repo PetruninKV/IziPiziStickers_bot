@@ -1,0 +1,31 @@
+# pre-commit run --all-files
+exclude: tests
+
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+    -   id: detect-private-key
+-   repo: https://github.com/PyCQA/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        additional_dependencies:
+            - flake8-bugbear
+            - flake8-bandit
+            - flake8-builtins
+            - flake8-class-attributes-order
+            - flake8-commas
+            - flake8-functions
+            - flake8-variables-names
+            - mccabe
+            - pep8-naming
+            - pycodestyle
+            - pyflakes
+-   repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.267
+    hooks:
+        - id: ruff
+          args: [--ignore, E501]
