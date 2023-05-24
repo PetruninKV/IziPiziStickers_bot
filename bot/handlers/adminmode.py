@@ -7,6 +7,7 @@ from config_data.config import Config, load_config
 from lexicon.lexicon import LEXICON_ADMIN
 from state.fsm import FSMAdmin
 from key_boards.inlinekeyboards import create_inline_kb
+from services.services import send_message_users
 
 config: Config = load_config()
 
@@ -21,16 +22,16 @@ async def check_admin(message: Message, state: FSMContext):
 
 
 @router.message(Command(commands='exit'),
-                StateFilter(FSMAdmin.admin_work, FSMAdmin.block, FSMAdmin.send_text))
+                StateFilter(FSMAdmin.admin_work, FSMAdmin.block, FSMAdmin.input_text))
 async def processing_no_admin_command(message: Message, state: FSMContext):
-    # выходит из состояний
+    # выходит из состояния администратора
     await state.clear()
     await message.answer(text='Обычный пользователь')
 
 
 @router.message(Command(commands='cancel'), StateFilter(FSMAdmin.block, FSMAdmin.input_text))
 async def processing_cancel_input(message: Message, state: FSMContext):
-    # выходит из состояний
+    # выходит из особых состояний администратора
     await state.set_state(FSMAdmin.admin_work)
     await message.answer(text=LEXICON_ADMIN['/admin'])
 
@@ -43,19 +44,19 @@ async def processing_stat_command(message: Message):
     # кто присоеденился
 
 
-@router.message(Command(commands='block_user'),
+@router.message(Command(commands='ban'),
                 StateFilter(FSMAdmin.admin_work))
 async def processing_block_command(message: Message):
-    await message.answer(text=LEXICON_ADMIN['/block_user'])
+    await message.answer(text=LEXICON_ADMIN['/ban'])
 
 
-@router.message(Command(commands='unblock_user'),
+@router.message(Command(commands='unban'),
                 StateFilter(FSMAdmin.admin_work))
 async def processing_unblock_command(message: Message):
-    await message.answer(text=LEXICON_ADMIN['/unblock_user'])
+    await message.answer(text=LEXICON_ADMIN['/unban'])
 
 
-@router.message(Command(commands='black_list'),
+@router.message(Command(commands='blacklist'),
                 StateFilter(FSMAdmin.admin_work))
 async def processing_black_list_command(message: Message):
     await message.answer(text='В списке заблокированных:')
@@ -80,9 +81,12 @@ async def check_input_message(message: Message, state: FSMContext):
 @router.callback_query(Text(text='send'), StateFilter(FSMAdmin.send_text))
 async def send_message_all_users(callback: CallbackQuery, state: FSMContext, bot: Bot):
     admin_message = await state.get_data()
-    print(admin_message['text'])
-    await bot.send_message(chat_id=000000000, text=admin_message['text'])
-    await callback.answer(text='Сообщение отправлено!', show_alert=True)
+    print('Сообщение админа:', admin_message['text'])
+    delivery_failed_users = await send_message_users(message=admin_message['text'], bot=bot)
+    await callback.answer(text='Сообщение отправлено!')
+    if delivery_failed_users is not None:
+        text = LEXICON_ADMIN['send_error'].format(users=delivery_failed_users)
+        await callback.message.answer(text=text)
     await callback.message.edit_text(text=LEXICON_ADMIN['send_text'])
     await state.set_state(FSMAdmin.input_text)
 
