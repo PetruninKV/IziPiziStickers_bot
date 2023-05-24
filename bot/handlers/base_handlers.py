@@ -8,6 +8,7 @@ from aiogram.fsm.context import FSMContext
 from state.fsm import FSMFormatting
 from config_data.config import Config, load_config
 from lexicon.lexicon import LEXICON_MESSAGE
+from database.users import active_users
 
 flag = {"throttling_key": "default"}
 
@@ -18,6 +19,7 @@ router: Router = Router()
 
 @router.message(CommandStart(), flags=flag)
 async def proc_statr_command(message: Message):
+    active_users.add(message.from_user.id)
     await message.answer(text=LEXICON_MESSAGE['/start'])
     if config.object_id.welcome_stick:
         await message.answer_sticker(sticker=config.object_id.welcome_stick)
