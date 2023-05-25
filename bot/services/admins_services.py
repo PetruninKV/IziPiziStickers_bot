@@ -1,9 +1,12 @@
 import asyncio
+from typing import Literal
 
 from aiogram import Bot
 from aiogram.exceptions import TelegramAPIError
 
-from database.users import active_users
+from database.users import active_users, blocked_users
+
+ActionType = Literal['ban', 'unban']
 
 
 async def send_message_users(message: str, bot: Bot) -> None | str:
@@ -20,3 +23,15 @@ async def send_message_users(message: str, bot: Bot) -> None | str:
             failed_users.add(user)
     if failed_users:
         return '\n'.join((map(str, failed_users)))
+
+
+def change_blacklist(text: str, action: ActionType) -> None:
+    new_ids: set = set(id_user for id_user in text.split('\n'))
+    actions = {
+        'ban': blocked_users.update,
+        'unban': blocked_users.difference_update,
+    }
+    if action in actions:
+        actions[action](new_ids)
+    else:
+        raise ValueError(f"Invalid action: {action}")

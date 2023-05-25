@@ -7,6 +7,7 @@ class FSMFormatting(StatesGroup):
 
 class FSMAdmin(StatesGroup):
     admin_work = State()
-    block = State()
+    ban = State()
+    uban = State()
     input_text = State()
     send_text = State()

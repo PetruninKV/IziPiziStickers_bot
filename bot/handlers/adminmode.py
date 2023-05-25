@@ -1,3 +1,5 @@
+from typing import Literal
+
 from aiogram import F, Bot, Router
 from aiogram.filters import Command, Text, StateFilter
 from aiogram.types import Message, CallbackQuery
@@ -7,7 +9,10 @@ from config_data.config import Config, load_config
 from lexicon.lexicon import LEXICON_ADMIN
 from state.fsm import FSMAdmin
 from key_boards.inlinekeyboards import create_inline_kb
-from services.services import send_message_users
+from services.admins_services import send_message_users, change_blacklist
+from database.users import blocked_users
+
+ActionType = Literal['ban', 'unban']
 
 config: Config = load_config()
 
@@ -22,14 +27,14 @@ async def check_admin(message: Message, state: FSMContext):
 
 
 @router.message(Command(commands='exit'),
-                StateFilter(FSMAdmin.admin_work, FSMAdmin.block, FSMAdmin.input_text))
+                StateFilter(FSMAdmin.admin_work, FSMAdmin.input_text))
 async def processing_no_admin_command(message: Message, state: FSMContext):
     # выходит из состояния администратора
     await state.clear()
     await message.answer(text='Обычный пользователь')
 
 
-@router.message(Command(commands='cancel'), StateFilter(FSMAdmin.block, FSMAdmin.input_text))
+@router.message(Command(commands='cancel'), StateFilter(FSMAdmin.ban, FSMAdmin.uban, FSMAdmin.input_text))
 async def processing_cancel_input(message: Message, state: FSMContext):
     # выходит из особых состояний администратора
     await state.set_state(FSMAdmin.admin_work)
@@ -44,22 +49,34 @@ async def processing_stat_command(message: Message):
     # кто присоеденился
 
 
-@router.message(Command(commands='ban'),
-                StateFilter(FSMAdmin.admin_work))
-async def processing_block_command(message: Message):
+@router.message(Command(commands='ban'), StateFilter(FSMAdmin.admin_work))
+async def processing_ban_command(message: Message, state: FSMContext):
     await message.answer(text=LEXICON_ADMIN['/ban'])
+    await state.update_data(change_blacklist='ban')
+    await state.set_state(FSMAdmin.ban)
 
 
-@router.message(Command(commands='unban'),
-                StateFilter(FSMAdmin.admin_work))
-async def processing_unblock_command(message: Message):
+@router.message(Command(commands='unban'), StateFilter(FSMAdmin.admin_work))
+async def processing_unban_command(message: Message, state: FSMContext):
     await message.answer(text=LEXICON_ADMIN['/unban'])
+    await state.update_data(change_blacklist='unban')
+    await state.set_state(FSMAdmin.uban)
+
+
+@router.message(F.text, StateFilter(FSMAdmin.ban, FSMAdmin.uban))
+async def proccessing_change_blacklist(message: Message, state: FSMContext):
+    state_dict: dict[str, ActionType] = await state.get_data()
+    action = state_dict['change_blacklist']
+    change_blacklist(text=message.text, action=action)
+    await message.reply(text=LEXICON_ADMIN[action])
+    await state.set_state(FSMAdmin.admin_work)
 
 
 @router.message(Command(commands='blacklist'),
                 StateFilter(FSMAdmin.admin_work))
 async def processing_black_list_command(message: Message):
-    await message.answer(text='В списке заблокированных:')
+    block_users = '\n'.join(map(str, blocked_users))
+    await message.answer(text=LEXICON_ADMIN['/blacklist'].format(users=block_users))
 
 
 @router.message(Command(commands='text'), StateFilter(FSMAdmin.admin_work))
@@ -71,7 +88,6 @@ async def processing_text_command(message: Message, state: FSMContext):
 
 @router.message(Text, StateFilter(FSMAdmin.input_text))
 async def check_input_message(message: Message, state: FSMContext):
-    # отправляет всем пользователям сообщение
     await message.answer(text=f'Проверь сообщение:\n <code>{message.text}</code>',
                          reply_markup=create_inline_kb(2, send='Отправить', cancel='Отменить'))
     await state.update_data(text=message.text)
