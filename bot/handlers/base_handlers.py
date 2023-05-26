@@ -10,7 +10,7 @@ from config_data.config import Config, load_config
 from lexicon.lexicon import LEXICON_MESSAGE
 from database.users import active_users
 
-flag = {"throttling_key": "default"}
+flag = {"throttling_key": "default", 'analytics_key': 'menu_command'}
 
 config: Config = load_config()
 
@@ -54,7 +54,7 @@ async def proc_demo_command(message: Message, bot: Bot):
     await message.answer(text=LEXICON_MESSAGE['/demo continue'])
 
 
-@router.message(Command(commands='formatting'))
+@router.message(Command(commands='formatting'), flags=flag)
 async def proc_photo_to_png_command(message: Message, state: FSMContext):
     await message.answer(text=LEXICON_MESSAGE['/formatting'])
     await state.set_state(FSMFormatting.work_on)

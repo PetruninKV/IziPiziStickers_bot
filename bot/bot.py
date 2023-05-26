@@ -9,6 +9,7 @@ from handlers import adminmode, base_handlers, formatting_handlers, other_handle
 from key_boards.main_menu import set_main_menu
 from middlewares.throttling import ThrottlingMiddleware
 from middlewares.blacklist import BlackListMiddleware
+from middlewares.analytics import AnalyticsMiddleware
 
 logger = logging.getLogger(__name__)
 
@@ -39,10 +40,10 @@ async def main():
 
     dp.message.outer_middleware(BlackListMiddleware())
     dp.message.middleware(ThrottlingMiddleware())
+    dp.message.middleware(AnalyticsMiddleware())
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
-
 
 if __name__ == '__main__':
     try:

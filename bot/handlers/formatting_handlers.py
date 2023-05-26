@@ -15,7 +15,7 @@ from config_data.config import Config, load_config
 from filters.my_filters import IsPhotoDoc
 from services.convert import photo_processing
 
-flag = {"throttling_key": "formatting"}
+flag = {"throttling_key": "formatting", 'analytics_key': 'formatting'}
 
 router: Router = Router()
 
@@ -49,12 +49,14 @@ async def convert_photo(message: Message, file_id: str, bot: Bot):
 
 
 @router.message(Command(commands='stop_formatting'),
-                StateFilter(FSMFormatting.work_on))
+                StateFilter(FSMFormatting.work_on),
+                flags={"throttling_key": "default", 'analytics_key': 'menu_command'})
 async def proc_stop_format_command(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(text=LEXICON_MESSAGE['/stop_formatting'])
 
 
-@router.message(StateFilter(FSMFormatting.work_on))
+@router.message(StateFilter(FSMFormatting.work_on),
+                flags={"throttling_key": "flood", 'analytics_key': 'flood_formatting'})
 async def proc_stop_format_command_not_possible(message: Message):
     await message.answer(text=LEXICON_MESSAGE['formatting_work_on'])

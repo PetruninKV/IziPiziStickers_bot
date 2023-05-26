@@ -5,7 +5,7 @@ from aiogram.types import Message
 from lexicon.lexicon import LEXICON_MESSAGE
 from filters.my_filters import IsPhotoDoc
 
-flag = {"throttling_key": "flood"}
+flag = {'throttling_key': 'flood', 'analytics_key': 'flood'}
 
 router: Router = Router()
 
