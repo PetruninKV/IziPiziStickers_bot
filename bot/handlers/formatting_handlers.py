@@ -57,6 +57,6 @@ async def proc_stop_format_command(message: Message, state: FSMContext):
 
 
 @router.message(StateFilter(FSMFormatting.work_on),
-                flags={"throttling_key": "flood", 'analytics_key': 'flood_formatting'})
+                flags={"throttling_key": "flood", 'analytics_key': 'flood'})
 async def proc_stop_format_command_not_possible(message: Message):
     await message.answer(text=LEXICON_MESSAGE['formatting_work_on'])
