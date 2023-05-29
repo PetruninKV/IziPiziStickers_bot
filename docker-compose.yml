@@ -1,0 +1,56 @@
+version: "3.8"
+services:
+    bot:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        stop_signal: SIGINT
+        restart: "always"
+        env_file:
+            - .env
+        volumes:
+            - bot:/app/bot
+        depends_on:
+            - grafana
+            - influxdb
+
+    influxdb:
+        image: influxdb:2.1-alpine
+        restart: "always"
+        volumes:
+            - "./influxdb_data:/var/lib/influxdb2"
+        ports:
+            - "8086:8086"
+        env_file:
+            - .env
+
+    grafana:
+        image: grafana/grafana:8.4.0
+        container_name: "test-stats-grafana"
+        volumes:
+            - "./grafana-data:/var/lib/grafana"
+        environment:
+            - GF_DATE_FORMATS_DEFAULT_TIMEZONE=browser
+        ports:
+            - "3000:3000"
+
+
+volumes:
+    influxdb:
+        driver: local
+        driver_opts:
+            type: 'none'
+            o: 'bind'
+            device: './influxdb_data'
+    grafana-data:
+        driver: local
+        driver_opts:
+            type: 'none'
+            o: 'bind'
+            device: './grafana-data'
+    bot:
+        driver: local
+        driver_opts:
+            type: 'none'
+            o: 'bind'
+            device: './bot'

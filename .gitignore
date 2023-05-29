@@ -8,3 +8,6 @@ __pycache__/
 *.env
 /env
 /temp
+
+grafana-data/
+influxdb_data/
