@@ -16,11 +16,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
-      - name: Set up environment variables
+      - name: 'Create env file'
         run: |
-          echo "TOKEN=${{ secrets.TOKEN }}" >> $GITHUB_ENV
-          echo "TOKEN_welcome_stick=${{ secrets.TOKEN_welcome_stick }}" >> $GITHUB_ENV
-          echo "TOKEN_processing_stick=${{ secrets.TOKEN_processing_stick }}" >> $GITHUB_ENV
+          echo "${{ secrets.BOT_SECRET }}" > .env
       - name: Run flake8
         run: flake8
       - name: Run pytest
