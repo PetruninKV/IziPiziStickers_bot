@@ -7,7 +7,7 @@ stickers.
 
 ## Features
 
-The best part is that users can create their own stickers without the need for any additional software. 
+The best part is that users can create their own stickers without the need for any additional software.
 
 The bot receives images or file from users and converts them into .png format that has no background and doesn't exceed
 512x512
@@ -19,9 +19,8 @@ resulting file to [@Stickers](https://t.me/Stickers).
 
 1. Get your Telegram bot token from [@BotFather](https://t.me/BotFather)
 2. Rename .env.example to .env and edit to set your tokens
-3. Run 
+3. Run
     ```bash
    docker build . -f Dockerfile -t izipizibot
    docker run -it izipizibot
     ```
-   

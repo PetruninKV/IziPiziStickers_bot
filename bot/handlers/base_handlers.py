@@ -8,8 +8,9 @@ from aiogram.fsm.context import FSMContext
 from state.fsm import FSMFormatting
 from config_data.config import Config, load_config
 from lexicon.lexicon import LEXICON_MESSAGE
+from database.users import active_users
 
-flag = {"throttling_key": "default"}
+flag = {"throttling_key": "default", 'analytics_key': 'menu_command'}
 
 config: Config = load_config()
 
@@ -18,6 +19,7 @@ router: Router = Router()
 
 @router.message(CommandStart(), flags=flag)
 async def proc_statr_command(message: Message):
+    active_users.add(message.from_user.id)
     await message.answer(text=LEXICON_MESSAGE['/start'])
     if config.object_id.welcome_stick:
         await message.answer_sticker(sticker=config.object_id.welcome_stick)
@@ -52,7 +54,7 @@ async def proc_demo_command(message: Message, bot: Bot):
     await message.answer(text=LEXICON_MESSAGE['/demo continue'])
 
 
-@router.message(Command(commands='formatting'))
+@router.message(Command(commands='formatting'), flags=flag)
 async def proc_photo_to_png_command(message: Message, state: FSMContext):
     await message.answer(text=LEXICON_MESSAGE['/formatting'])
     await state.set_state(FSMFormatting.work_on)

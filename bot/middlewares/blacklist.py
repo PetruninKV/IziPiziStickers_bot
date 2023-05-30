@@ -2,7 +2,7 @@ from typing import Any, Awaitable, Callable, Dict
 
 from aiogram import BaseMiddleware
 from aiogram.types import Message
-from database.blacklist import blocked_users
+from database.users import blocked_users
 
 
 class BlackListMiddleware(BaseMiddleware):
@@ -13,7 +13,7 @@ class BlackListMiddleware(BaseMiddleware):
         event: Message,
         data: Dict[str, Any],
     ) -> Any:
-        id_user = event.from_user.id
-        if id_user in blocked_users:
+        user_id = event.from_user.id
+        if user_id in blocked_users:
             return
         return await handler(event, data)
