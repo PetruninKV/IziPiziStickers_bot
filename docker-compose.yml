@@ -9,10 +9,11 @@ services:
         env_file:
             - .env
         volumes:
-            - bot:/app/bot
+            - "./bot:/app/bot"
         depends_on:
             - grafana
             - influxdb
+            - redis
 
     influxdb:
         image: influxdb:2.1-alpine
@@ -26,13 +27,27 @@ services:
 
     grafana:
         image: grafana/grafana:8.4.0
-        container_name: "test-stats-grafana"
+        container_name: "stats-grafana"
         volumes:
             - "./grafana-data:/var/lib/grafana"
         environment:
             - GF_DATE_FORMATS_DEFAULT_TIMEZONE=browser
         ports:
             - "3000:3000"
+
+    redis:
+        image: redis:latest
+        volumes:
+            - "./redis_data:/data"
+        ports:
+            - "6379:6379"
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 5s
+            timeout: 30s
+            retries: 50
+        restart: "always"
+        command: 'redis-server --save 60 1 --loglevel warning'
 
 
 volumes:
@@ -42,12 +57,18 @@ volumes:
             type: 'none'
             o: 'bind'
             device: './influxdb_data'
-    grafana-data:
+    grafana:
         driver: local
         driver_opts:
             type: 'none'
             o: 'bind'
             device: './grafana-data'
+    redisdb:
+        driver: local
+        driver_opts:
+            type: 'none'
+            o: 'bind'
+            device: './redisdb_data'
     bot:
         driver: local
         driver_opts:

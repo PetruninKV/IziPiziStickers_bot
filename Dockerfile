@@ -10,16 +10,17 @@ ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
 
 WORKDIR /app
 
-COPY . /app
-
 RUN curl -sSL https://install.python-poetry.org | python3 -
 
 RUN poetry config virtualenvs.create false
-
+COPY pyproject.toml poetry.lock /app/
 RUN poetry install -n --without=dev
 
 RUN mkdir -p /root/.u2net && \
     wget https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2net.onnx \
     -O /root/.u2net/u2net.onnx
+
+COPY bot /app/bot
+COPY .env /app
 
 CMD ["python3.10", "bot/bot.py"]

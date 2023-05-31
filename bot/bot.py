@@ -3,6 +3,7 @@ import logging
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.storage.redis import RedisStorage, Redis
 
 from config_data.config import Config, load_config
 from handlers import adminmode, base_handlers, formatting_handlers, other_handlers, service_handlers
@@ -24,7 +25,11 @@ async def main():
 
     config: Config = load_config()
 
-    storage: MemoryStorage = MemoryStorage()
+    if config.fsm_mode.mode == 'memory':
+        storage: MemoryStorage = MemoryStorage()
+    else:
+        redis: Redis = Redis(host=config.redis.dsn)
+        storage: RedisStorage = RedisStorage(redis=redis)
 
     bot: Bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
     dp: Dispatcher = Dispatcher(storage=storage)
