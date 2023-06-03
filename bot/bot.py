@@ -28,8 +28,8 @@ async def main():
     if config.fsm_mode.mode == 'memory':
         storage: MemoryStorage = MemoryStorage()
     else:
-        redis: Redis = Redis(host=config.redis.dsn)
-        storage: RedisStorage = RedisStorage(redis=redis)
+        redis_fsm: Redis = Redis(host=config.redis.dsn, db=config.redis.fsm_db_id)
+        storage: RedisStorage = RedisStorage(redis=redis_fsm)
 
     bot: Bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
     dp: Dispatcher = Dispatcher(storage=storage)
@@ -43,7 +43,9 @@ async def main():
     dp.include_router(base_handlers.router)
     dp.include_router(other_handlers.router)
 
-    dp.message.outer_middleware(BlackListMiddleware())
+    redis_users: Redis = Redis(host=config.redis.dsn, db=config.redis.users_db_id)
+
+    dp.message.outer_middleware(BlackListMiddleware(redis=redis_users))
     dp.message.middleware(ThrottlingMiddleware())
     dp.message.middleware(AnalyticsMiddleware())
 
