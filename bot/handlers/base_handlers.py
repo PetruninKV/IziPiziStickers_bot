@@ -4,15 +4,21 @@ from aiogram import Router, Bot
 from aiogram.filters import Command, CommandStart
 from aiogram.types import BufferedInputFile, Message
 from aiogram.fsm.context import FSMContext
+from redis.asyncio.client import Redis
 
 from state.fsm import FSMFormatting
-from config_data.config import Config, load_config
+from config_data.config import config
 from lexicon.lexicon import LEXICON_MESSAGE
 from database.users import active_users
+from services.redis import set_users_db
 
 flag = {"throttling_key": "default", 'analytics_key': 'menu_command'}
 
-config: Config = load_config()
+redis_users: Redis = Redis(
+    host=config.redis.dsn,
+    db=config.redis.users_db_id,
+    decode_responses=True,
+)
 
 router: Router = Router()
 
@@ -24,6 +30,9 @@ async def proc_statr_command(message: Message):
     if config.object_id.welcome_stick:
         await message.answer_sticker(sticker=config.object_id.welcome_stick)
         await message.answer(text=LEXICON_MESSAGE['/start continue'])
+    async with redis_users:
+        await set_users_db(redis_users, 'active_users', str(message.from_user.id))
+        await set_users_db(redis_users, 'all_users', str(message.from_user.id))
 
 
 @router.message(Command(commands='instruction'), flags=flag)
