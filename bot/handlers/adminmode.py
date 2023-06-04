@@ -4,17 +4,23 @@ from aiogram import F, Bot, Router
 from aiogram.filters import Command, Text, StateFilter
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
+from redis.asyncio.client import Redis
 
-from config_data.config import Config, load_config
+from config_data.config import config
 from lexicon.lexicon import LEXICON_ADMIN
 from state.fsm import FSMAdmin
 from key_boards.inlinekeyboards import create_inline_kb
 from services.admins_services import send_message_users, change_blacklist
+from services.redis import get_users_from_db, set_users_db, rm_users_from_db
 from database.users import blocked_users
 
 ActionType = Literal['ban', 'unban']
 
-config: Config = load_config()
+redis_users: Redis = Redis(
+    host=config.redis.dsn,
+    db=config.redis.users_db_id,
+    decode_responses=True,
+)
 
 router: Router = Router()
 router.message.filter(F.from_user.id == config.tg_bot.admin)
@@ -64,10 +70,15 @@ async def processing_unban_command(message: Message, state: FSMContext):
 
 
 @router.message(F.text, StateFilter(FSMAdmin.ban, FSMAdmin.uban))
-async def proccessing_change_blacklist(message: Message, state: FSMContext):
+async def processing_change_blacklist(message: Message, state: FSMContext):
     state_dict: dict[str, ActionType] = await state.get_data()
     action = state_dict['change_blacklist']
     change_blacklist(text=message.text, action=action)
+    async with redis_users:
+        await {  # noqa: W606
+            'ban': set_users_db,
+            'unban': rm_users_from_db,
+        }[action](redis=redis_users, name_key='blacklist', users=message.text)
     await message.reply(text=LEXICON_ADMIN[action])
     await state.set_state(FSMAdmin.admin_work)
 
@@ -77,6 +88,9 @@ async def proccessing_change_blacklist(message: Message, state: FSMContext):
 async def processing_black_list_command(message: Message):
     block_users = '\n'.join(map(str, blocked_users))
     await message.answer(text=LEXICON_ADMIN['/blacklist'].format(users=block_users))
+    async with redis_users:
+        user_in_blacklist: str = await get_users_from_db(redis=redis_users, name_key='blacklist')
+    await message.answer(text=LEXICON_ADMIN['/blacklist'].format(users=user_in_blacklist))
 
 
 @router.message(Command(commands='text'), StateFilter(FSMAdmin.admin_work))
