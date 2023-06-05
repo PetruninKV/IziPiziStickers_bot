@@ -4,20 +4,18 @@ from aiogram import F, Bot, Router
 from aiogram.filters import Command, Text, StateFilter
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
-from redis.asyncio.client import Redis
 
 from config_data.config import config
 from lexicon.lexicon import LEXICON_ADMIN
 from state.fsm import FSMAdmin
 from key_boards.inlinekeyboards import create_inline_kb
 from services.admins_services import send_message_users, change_blacklist
-from services.redis import get_users_from_db, set_users_db, rm_users_from_db
+from services.redis import RedisDB
 from database.users import blocked_users
 
 ActionType = Literal['ban', 'unban']
 
-redis_users: Redis = Redis(
-    host=config.redis.dsn,
+redis_users: RedisDB = RedisDB(
     db=config.redis.users_db_id,
     decode_responses=True,
 )
@@ -76,9 +74,9 @@ async def processing_change_blacklist(message: Message, state: FSMContext):
     change_blacklist(text=message.text, action=action)
     async with redis_users:
         await {  # noqa: W606
-            'ban': set_users_db,
-            'unban': rm_users_from_db,
-        }[action](redis=redis_users, name_key='blacklist', users=message.text)
+            'ban': redis_users.set_users_to_db,
+            'unban': redis_users.rm_users_from_db,
+        }[action](name_key='blacklist', users=message.text)
     await message.reply(text=LEXICON_ADMIN[action])
     await state.set_state(FSMAdmin.admin_work)
 
@@ -89,7 +87,7 @@ async def processing_black_list_command(message: Message):
     block_users = '\n'.join(map(str, blocked_users))
     await message.answer(text=LEXICON_ADMIN['/blacklist'].format(users=block_users))
     async with redis_users:
-        user_in_blacklist: str = await get_users_from_db(redis=redis_users, name_key='blacklist')
+        user_in_blacklist: str = await redis_users.get_users_from_db(name_key='blacklist')
     await message.answer(text=LEXICON_ADMIN['/blacklist'].format(users=user_in_blacklist))
 
 

@@ -3,16 +3,14 @@ from typing import Literal
 
 from aiogram import Bot
 from aiogram.exceptions import TelegramAPIError
-from redis.asyncio.client import Redis
 
 from database.users import blocked_users
 from config_data.config import config
-from services.redis import get_users_from_db
+from services.redis import RedisDB
 
 ActionType = Literal['ban', 'unban']
 
-redis_users: Redis = Redis(
-    host=config.redis.dsn,
+redis_users: RedisDB = RedisDB(
     db=config.redis.users_db_id,
     decode_responses=True,
 )
@@ -21,8 +19,7 @@ redis_users: Redis = Redis(
 async def send_message_users(message: str, bot: Bot) -> None | str:
     failed_users: set[str] = set()
     async with redis_users:
-        active_users = await get_users_from_db(
-            redis=redis_users,
+        active_users = await redis_users.get_users_from_db(
             name_key='active_users',
             mode_string=False,
         )
