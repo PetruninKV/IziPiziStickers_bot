@@ -23,15 +23,14 @@ router: Router = Router()
 
 
 @router.message(CommandStart(), flags=flag)
-async def proc_statr_command(message: Message):
+async def proc_statr_command(message: Message, redis_session: RedisDB):
     active_users.add(message.from_user.id)
     await message.answer(text=LEXICON_MESSAGE['/start'])
     if config.object_id.welcome_stick:
         await message.answer_sticker(sticker=config.object_id.welcome_stick)
         await message.answer(text=LEXICON_MESSAGE['/start continue'])
-    async with redis_users:
-        await redis_users.set_users_to_db('active_users', str(message.from_user.id))
-        await redis_users.set_users_to_db('all_users', str(message.from_user.id))
+    await redis_session.set_users_to_db('active_users', str(message.from_user.id))
+    await redis_session.set_users_to_db('all_users', str(message.from_user.id))
 
 
 @router.message(Command(commands='instruction'), flags=flag)

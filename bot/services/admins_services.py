@@ -5,24 +5,17 @@ from aiogram import Bot
 from aiogram.exceptions import TelegramAPIError
 
 from database.users import blocked_users
-from config_data.config import config
 from services.redis import RedisDB
 
 ActionType = Literal['ban', 'unban']
 
-redis_users: RedisDB = RedisDB(
-    db=config.redis.users_db_id,
-    decode_responses=True,
-)
 
-
-async def send_message_users(message: str, bot: Bot) -> None | str:
+async def send_message_users(message: str, bot: Bot, redis: RedisDB) -> None | str:
     failed_users: set[str] = set()
-    async with redis_users:
-        active_users = await redis_users.get_users_from_db(
-            name_key='active_users',
-            mode_string=False,
-        )
+    active_users = await redis.get_users_from_db(
+        name_key='active_users',
+        mode_string=False,
+    )
     for user in active_users:
         await asyncio.sleep(0.1)
         try:

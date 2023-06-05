@@ -11,6 +11,8 @@ from key_boards.main_menu import set_main_menu
 from middlewares.throttling import ThrottlingMiddleware
 from middlewares.blacklist import BlackListMiddleware
 from middlewares.analytics import AnalyticsMiddleware
+from services.redis import RedisDB
+from middlewares.redis_session import DbSessionMiddleware
 
 logger = logging.getLogger(__name__)
 
@@ -25,11 +27,19 @@ async def main():
 
     config: Config = load_config()
 
-    if config.fsm_mode.mode == 'memory':
-        storage: MemoryStorage = MemoryStorage()
-    else:
-        redis_fsm: Redis = Redis(host=config.redis.dsn, db=config.redis.fsm_db_id)
+    if config.fsm_mode.mode == 'redis':
+        redis_fsm: Redis = Redis(
+            host=config.redis.dsn,
+            db=config.redis.fsm_db_id,
+        )
         storage: RedisStorage = RedisStorage(redis=redis_fsm)
+
+        redis_users: RedisDB = RedisDB(
+            db=config.redis.users_db_id,
+            decode_responses=True,
+        )
+    else:
+        storage: MemoryStorage = MemoryStorage()
 
     bot: Bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
     dp: Dispatcher = Dispatcher(storage=storage)
@@ -43,8 +53,9 @@ async def main():
     dp.include_router(base_handlers.router)
     dp.include_router(other_handlers.router)
 
-    redis_users: Redis = Redis(host=config.redis.dsn, db=config.redis.users_db_id)
-
+    dp.message.outer_middleware(DbSessionMiddleware(session_pool=redis_users))
+    dp.callback_query.outer_middleware(DbSessionMiddleware(session_pool=redis_users))
+    dp.my_chat_member.outer_middleware(DbSessionMiddleware(session_pool=redis_users))
     dp.message.outer_middleware(BlackListMiddleware(redis=redis_users))
     dp.message.middleware(ThrottlingMiddleware())
     dp.message.middleware(AnalyticsMiddleware())
