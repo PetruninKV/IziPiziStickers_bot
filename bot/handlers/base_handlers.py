@@ -6,24 +6,31 @@ from aiogram.types import BufferedInputFile, Message
 from aiogram.fsm.context import FSMContext
 
 from state.fsm import FSMFormatting
-from config_data.config import Config, load_config
+from config_data.config import config
 from lexicon.lexicon import LEXICON_MESSAGE
 from database.users import active_users
+from services.redis import RedisDB
+
 
 flag = {"throttling_key": "default", 'analytics_key': 'menu_command'}
 
-config: Config = load_config()
+redis_users: RedisDB = RedisDB(
+    db=config.redis.users_db_id,
+    decode_responses=True,
+)
 
 router: Router = Router()
 
 
 @router.message(CommandStart(), flags=flag)
-async def proc_statr_command(message: Message):
+async def proc_statr_command(message: Message, redis_session: RedisDB):
     active_users.add(message.from_user.id)
     await message.answer(text=LEXICON_MESSAGE['/start'])
     if config.object_id.welcome_stick:
         await message.answer_sticker(sticker=config.object_id.welcome_stick)
         await message.answer(text=LEXICON_MESSAGE['/start continue'])
+    await redis_session.set_users_to_db('active_users', str(message.from_user.id))
+    await redis_session.set_users_to_db('all_users', str(message.from_user.id))
 
 
 @router.message(Command(commands='instruction'), flags=flag)

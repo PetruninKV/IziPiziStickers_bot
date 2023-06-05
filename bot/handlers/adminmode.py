@@ -5,16 +5,16 @@ from aiogram.filters import Command, Text, StateFilter
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from config_data.config import Config, load_config
+from config_data.config import config
 from lexicon.lexicon import LEXICON_ADMIN
 from state.fsm import FSMAdmin
 from key_boards.inlinekeyboards import create_inline_kb
 from services.admins_services import send_message_users, change_blacklist
+from services.redis import RedisDB
 from database.users import blocked_users
 
 ActionType = Literal['ban', 'unban']
 
-config: Config = load_config()
 
 router: Router = Router()
 router.message.filter(F.from_user.id == config.tg_bot.admin)
@@ -64,19 +64,25 @@ async def processing_unban_command(message: Message, state: FSMContext):
 
 
 @router.message(F.text, StateFilter(FSMAdmin.ban, FSMAdmin.uban))
-async def proccessing_change_blacklist(message: Message, state: FSMContext):
+async def processing_change_blacklist(message: Message, state: FSMContext, redis_session: RedisDB):
     state_dict: dict[str, ActionType] = await state.get_data()
     action = state_dict['change_blacklist']
     change_blacklist(text=message.text, action=action)
+    await {  # noqa: W606
+        'ban': redis_session.set_users_to_db,
+        'unban': redis_session.rm_users_from_db,
+    }[action](name_key='blacklist', users=message.text)
     await message.reply(text=LEXICON_ADMIN[action])
     await state.set_state(FSMAdmin.admin_work)
 
 
 @router.message(Command(commands='blacklist'),
                 StateFilter(FSMAdmin.admin_work))
-async def processing_black_list_command(message: Message):
+async def processing_black_list_command(message: Message, redis_session: RedisDB):
     block_users = '\n'.join(map(str, blocked_users))
     await message.answer(text=LEXICON_ADMIN['/blacklist'].format(users=block_users))
+    user_in_blacklist: str = await redis_session.get_users_from_db(name_key='blacklist')
+    await message.answer(text=LEXICON_ADMIN['/blacklist'].format(users=user_in_blacklist))
 
 
 @router.message(Command(commands='text'), StateFilter(FSMAdmin.admin_work))
@@ -95,10 +101,9 @@ async def check_input_message(message: Message, state: FSMContext):
 
 
 @router.callback_query(Text(text='send'), StateFilter(FSMAdmin.send_text))
-async def send_message_all_users(callback: CallbackQuery, state: FSMContext, bot: Bot):
+async def send_message_all_users(callback: CallbackQuery, state: FSMContext, bot: Bot, redis_session: RedisDB):
     admin_message = await state.get_data()
-    print('Сообщение админа:', admin_message['text'])
-    delivery_failed_users = await send_message_users(message=admin_message['text'], bot=bot)
+    delivery_failed_users = await send_message_users(message=admin_message['text'], bot=bot, redis=redis_session)
     await callback.answer(text='Сообщение отправлено!')
     if delivery_failed_users is not None:
         text = LEXICON_ADMIN['send_error'].format(users=delivery_failed_users)
