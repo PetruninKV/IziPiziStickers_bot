@@ -33,8 +33,6 @@ class RedisDB:
     dsn: str
     fsm_db_id: int
     users_db_id: int
-    active_users_db_id: int
-    blacklist_db_id: int
 
 
 @dataclass
@@ -68,9 +66,7 @@ def load_config(path: str | None = None) -> Config:
         redis=RedisDB(
             dsn=env('REDIS__DSN'),
             fsm_db_id=env.int('REDIS__FSM_DB_ID'),
-            users_db_id=env.int('REDIS___USERS_DB_ID'),
-            active_users_db_id=env.int('REDIS__ACTIVE_USERS_DB_ID'),
-            blacklist_db_id=env.int('REDIS__BLACKLIST_DB_ID'),
+            users_db_id=env.int('REDIS__USERS_DB_ID'),
         ),
     )
 
