@@ -17,7 +17,7 @@ jobs:
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.KEY }}
+        password: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
         envs: PROJECT_PATH
         script: cd ${{ secrets.PROJECT_PATH }} && git stash && git pull && bash bin/deploy.sh
