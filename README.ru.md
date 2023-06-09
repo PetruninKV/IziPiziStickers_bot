@@ -72,7 +72,17 @@
        - Default Bucket - 'events'
      - Нажми Save & test
      - Увидишь Datasource updated и datasource is working. 1 buckets found - значит все хорошо.
-     - В строке браузера необходимо скопировать идентефикатор базы данных, пример: localhost:3000/datasources/edit/<b>D4p5Afw4k</b>. У тебя он будет свой
-   - Переименуй [конфигурационный файл](dashboard.example.json) с настройками в dashboard.json и во всех строках  <b>"uid": "YOUR_ID"</b> подставь свой идентефикатор полученный в предыдущем пункте
+     - В строке браузера необходимо скопировать идентефикатор базы данных, пример: localhost:3000/datasources/edit/<b>D4p5Afw4k</b>. У тебя он будет свой. Вставь значение в .env файл ID_DATA_SRC_INFLIXDB.
+   - Выполни
+      ```bash
+      ./scripts/change_id.sh
+      ```
+      Он переименует [конфигурационный файл](dashboard.example.json) с настройками в dashboard.json и во всех строках  <b>"uid": "YOUR_ID"</b> подставит твой идентефикатор полученный в предыдущем пункте.
+
+      Если скрипт не иммет права на выполнение, используй:
+      ```bash
+      chmod +x ./scripts/change_id.sh
+      ```
+
    - Перейди в [найстройки дашбордов](http://localhost:3000/dashboard/import) и импортируй dashboard.json
    - Теперь тебе доступна статистика

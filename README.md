@@ -73,6 +73,16 @@ Detailed project development timeline and description of all the capabilities of
      - Click Save & test
      - You should see "Datasource updated" and "Datasource is working. 1 buckets found" - which means everything is good.
      - In the browser's address bar, copy the database identifier, e.g., localhost:3000/datasources/edit/<b>D4p5Afw4k</b>. You'll have your own identifier.
-   - Rename the [configuration file](dashboard.example.json) with settings to dashboard.json and replace <b>"uid": "YOUR_ID"</b> with your own identifier obtained in the previous step in all lines
-   - Go to [dashboard settings](http://localhost:3000/dashboard/import) and import dashboard.json
-   - Now you have access to statistics.
+     - Run the following command:
+        ```bash
+        ./scripts/change_id.sh
+        ```
+        This script renames the configuration file (dashboard.example.json) to dashboard.json and replaces all occurrences of `<b>"uid": "YOUR_ID"</b>` with your obtained identifier from the previous step.
+
+        If the script doesn't have execute permissions, you can use:
+        ```bash
+        chmod +x ./scripts/change_id.sh
+        ```
+
+     - Go to the [dashboard settings](http://localhost:3000/dashboard/import) and import dashboard.json.
+     - You should now have access to the statistics.
