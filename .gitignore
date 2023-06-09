@@ -9,6 +9,8 @@ __pycache__/
 /env
 /temp
 
-grafana-data/
+grafana_data/
+dashboard.json
 influxdb_data/
 redis_data
+botdata/
