@@ -20,4 +20,4 @@ jobs:
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
         envs: PROJECT_PATH
-        script: cd ${{ secrets.PROJECT_PATH }} && git stash && git pull && bash bin/deploy.sh
+        script: cd ${{ secrets.PROJECT_PATH }} && git stash && git pull && bash scripts/deploy.sh
