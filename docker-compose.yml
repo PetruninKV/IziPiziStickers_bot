@@ -11,12 +11,14 @@ services:
         volumes:
             - "./bot:/app/bot"
         depends_on:
-            - grafana
             - influxdb
+            - grafana
             - redis
+        networks:
+            - bot-network
 
     influxdb:
-        image: influxdb:2.1-alpine
+        image: influxdb:2.7
         restart: "always"
         volumes:
             - "./influxdb_data:/var/lib/influxdb2"
@@ -24,16 +26,23 @@ services:
             - "8086:8086"
         env_file:
             - .env
+        networks:
+            - bot-network
 
     grafana:
-        image: grafana/grafana:8.4.0
+        image: grafana/grafana-enterprise
         container_name: "stats-grafana"
         volumes:
-            - "./grafana-data:/var/lib/grafana"
+            - "./grafana_data:/var/lib/grafana"
         environment:
             - GF_DATE_FORMATS_DEFAULT_TIMEZONE=browser
+        env_file:
+            - .env
+        user: "${UID}"
         ports:
             - "3000:3000"
+        networks:
+            - bot-network
 
     redis:
         image: redis:latest
@@ -48,30 +57,14 @@ services:
             retries: 50
         restart: "always"
         command: 'redis-server --save 60 1 --loglevel warning'
-
+        networks:
+            - bot-network
 
 volumes:
-    influxdb:
-        driver: local
-        driver_opts:
-            type: 'none'
-            o: 'bind'
-            device: './influxdb_data'
-    grafana:
-        driver: local
-        driver_opts:
-            type: 'none'
-            o: 'bind'
-            device: './grafana-data'
-    redisdb:
-        driver: local
-        driver_opts:
-            type: 'none'
-            o: 'bind'
-            device: './redisdb_data'
-    bot:
-        driver: local
-        driver_opts:
-            type: 'none'
-            o: 'bind'
-            device: './bot'
+    influxdb_data:
+    grafana_data:
+    redis_data:
+
+networks:
+    bot-network:
+        driver: bridge
