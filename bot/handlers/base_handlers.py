@@ -14,10 +14,10 @@ from services.redis import RedisDB
 
 flag = {"throttling_key": "default", 'analytics_key': 'menu_command'}
 
-redis_users: RedisDB = RedisDB(
-    db=config.redis.users_db_id,
-    decode_responses=True,
-)
+# redis_users: RedisDB = RedisDB(
+#     db=config.redis.users_db_id,
+#     decode_responses=True,
+# )
 
 router: Router = Router()
 

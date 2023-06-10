@@ -12,8 +12,9 @@ from aiogram.fsm.context import FSMContext
 from state.fsm import FSMFormatting
 from lexicon.lexicon import LEXICON_MESSAGE
 from config_data.config import Config, load_config
-from filters.my_filters import IsPhotoDoc
+from filters.my_filters import IsPhotoDoc, IsLinkStickerpack
 from services.convert import photo_processing
+from services.redis import RedisDB
 
 flag = {"throttling_key": "formatting", 'analytics_key': 'formatting'}
 
@@ -60,3 +61,17 @@ async def proc_stop_format_command(message: Message, state: FSMContext):
                 flags={"throttling_key": "flood", 'analytics_key': 'flood'})
 async def proc_stop_format_command_not_possible(message: Message):
     await message.answer(text=LEXICON_MESSAGE['formatting_work_on'])
+
+
+@router.message(
+        Command(commands='feedback'),
+        IsLinkStickerpack(),
+        flags={"throttling_key": "flood", 'analytics_key': 'menu_command'},
+    )
+async def proc_feedback_command(message: Message, link: str, redis_session: RedisDB):
+    await message.answer(text=LEXICON_MESSAGE['/feedback'].format(link=link))
+
+
+@router.message(Command(commands='feedback'), flags={"throttling_key": "flood", 'analytics_key': 'flood'})
+async def proc_feedback_er(message: Message):
+    await message.answer(text=LEXICON_MESSAGE['/feedback_er'])
