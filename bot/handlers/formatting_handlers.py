@@ -65,7 +65,7 @@ async def proc_stop_format_command_not_possible(message: Message):
 @router.message(
         Command(commands='feedback'),
         IsLinkStickerpack(),
-        flags={"throttling_key": "flood", 'analytics_key': 'menu_command'},
+        flags={"throttling_key": "flood_feedback", 'analytics_key': 'menu_command'},
     )
 async def proc_feedback_command(message: Message, link: str, bot: Bot):
     await message.answer(text=LEXICON_MESSAGE['/feedback'].format(link=link))
