@@ -1,0 +1,70 @@
+version: "3.8"
+services:
+    bot:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        stop_signal: SIGINT
+        restart: "always"
+        env_file:
+            - .env
+        volumes:
+            - "./bot:/app/bot"
+        depends_on:
+            - influxdb
+            - grafana
+            - redis
+        networks:
+            - bot-network
+
+    influxdb:
+        image: influxdb:2.7
+        restart: "always"
+        volumes:
+            - "./influxdb_data:/var/lib/influxdb2"
+        ports:
+            - "8086:8086"
+        env_file:
+            - .env
+        networks:
+            - bot-network
+
+    grafana:
+        image: grafana/grafana-enterprise
+        container_name: "stats-grafana"
+        volumes:
+            - "./grafana_data:/var/lib/grafana"
+        environment:
+            - GF_DATE_FORMATS_DEFAULT_TIMEZONE=browser
+        env_file:
+            - .env
+        user: "${UID}"
+        ports:
+            - "3000:3000"
+        networks:
+            - bot-network
+
+    redis:
+        image: redis:latest
+        volumes:
+            - "./redis_data:/data"
+        ports:
+            - "6379:6379"
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 5s
+            timeout: 30s
+            retries: 50
+        restart: "always"
+        command: 'redis-server --save 60 1 --loglevel warning'
+        networks:
+            - bot-network
+
+volumes:
+    influxdb_data:
+    grafana_data:
+    redis_data:
+
+networks:
+    bot-network:
+        driver: bridge
