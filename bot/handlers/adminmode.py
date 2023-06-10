@@ -69,8 +69,8 @@ async def processing_change_blacklist(message: Message, state: FSMContext, redis
     action = state_dict['change_blacklist']
     change_blacklist(text=message.text, action=action)
     await {  # noqa: W606
-        'ban': redis_session.set_users_to_db,
-        'unban': redis_session.rm_users_from_db,
+        'ban': redis_session.set_add_to_db,
+        'unban': redis_session.set_rm_from_db,
     }[action](name_key='blacklist', users=message.text)
     await message.reply(text=LEXICON_ADMIN[action])
     await state.set_state(FSMAdmin.admin_work)
@@ -81,7 +81,7 @@ async def processing_change_blacklist(message: Message, state: FSMContext, redis
 async def processing_black_list_command(message: Message, redis_session: RedisDB):
     block_users = '\n'.join(map(str, blocked_users))
     await message.answer(text=LEXICON_ADMIN['/blacklist'].format(users=block_users))
-    user_in_blacklist: str = await redis_session.get_users_from_db(name_key='blacklist')
+    user_in_blacklist: str = await redis_session.set_get_from_db(name_key='blacklist')
     await message.answer(text=LEXICON_ADMIN['/blacklist'].format(users=user_in_blacklist))
 
 
