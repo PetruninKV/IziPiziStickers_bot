@@ -14,7 +14,6 @@ from lexicon.lexicon import LEXICON_MESSAGE
 from config_data.config import Config, load_config
 from filters.my_filters import IsPhotoDoc, IsLinkStickerpack
 from services.convert import photo_processing
-from services.redis import RedisDB
 
 flag = {"throttling_key": "formatting", 'analytics_key': 'formatting'}
 
@@ -68,8 +67,12 @@ async def proc_stop_format_command_not_possible(message: Message):
         IsLinkStickerpack(),
         flags={"throttling_key": "flood", 'analytics_key': 'menu_command'},
     )
-async def proc_feedback_command(message: Message, link: str, redis_session: RedisDB):
+async def proc_feedback_command(message: Message, link: str, bot: Bot):
     await message.answer(text=LEXICON_MESSAGE['/feedback'].format(link=link))
+    await bot.send_message(
+        chat_id=config.tg_bot.admin,
+        text=f'Посмотри стикерпак пользователя @{message.from_user.username}: {link}',
+    )
 
 
 @router.message(Command(commands='feedback'), flags={"throttling_key": "flood", 'analytics_key': 'flood'})
