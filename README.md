@@ -86,3 +86,9 @@ Detailed project development timeline and description of all the capabilities of
 
      - Go to the [dashboard settings](http://localhost:3000/dashboard/import) and import dashboard.json.
      - You should now have access to the statistics.
+
+![Stats](images/stats-image.png)
+"Menu commands": This graph displays the usage of commands within a specific time interval. It shows the number of times menu commands were used during the given time period.
+"Formatting photo": This graph shows the number of photos formatted by the user within a specific time interval. It allows tracking user activity related to photo formatting.
+"User activity": This graph displays the total number of messages sent by a user within a specific time interval. It demonstrates user activity based on the quantity of messages they have sent.
+"Messages": This table displays messages that were not recognized as commands, including information about photos sent by users when they were not in editing mode, and plain text messages. This table allows evaluating user spam, incorrect usage of the editing mode, and commands that were not processed by the bot.
