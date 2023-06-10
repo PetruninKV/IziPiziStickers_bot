@@ -7,7 +7,7 @@ class RedisDB(Redis):
     def __init__(self, db: int, host: str = config.redis.dsn, decode_responses: bool = True):
         super().__init__(host=host, db=db, decode_responses=decode_responses)
 
-    async def get_users_from_db(
+    async def set_get_from_db(
         self,
         name_key: str,
         mode_string: bool = True,
@@ -17,7 +17,7 @@ class RedisDB(Redis):
             return '\n'.join(users_in_db)
         return users_in_db
 
-    async def set_users_to_db(
+    async def set_add_to_db(
         self,
         name_key: str,
         users: str,
@@ -25,7 +25,7 @@ class RedisDB(Redis):
         users_for_ban = set(users.split('\n'))
         await self.sadd(name_key, *users_for_ban)
 
-    async def rm_users_from_db(
+    async def set_rm_from_db(
         self,
         name_key: str,
         users: str,

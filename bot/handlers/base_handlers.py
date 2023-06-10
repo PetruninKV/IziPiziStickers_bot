@@ -29,8 +29,8 @@ async def proc_statr_command(message: Message, redis_session: RedisDB):
     if config.object_id.welcome_stick:
         await message.answer_sticker(sticker=config.object_id.welcome_stick)
         await message.answer(text=LEXICON_MESSAGE['/start continue'])
-    await redis_session.set_users_to_db('active_users', str(message.from_user.id))
-    await redis_session.set_users_to_db('all_users', str(message.from_user.id))
+    await redis_session.set_add_to_db('active_users', str(message.from_user.id))
+    await redis_session.set_add_to_db('all_users', str(message.from_user.id))
 
 
 @router.message(Command(commands='instruction'), flags=flag)

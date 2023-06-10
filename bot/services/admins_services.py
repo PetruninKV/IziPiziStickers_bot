@@ -12,7 +12,7 @@ ActionType = Literal['ban', 'unban']
 
 async def send_message_users(message: str, bot: Bot, redis: RedisDB) -> None | str:
     failed_users: set[str] = set()
-    active_users = await redis.get_users_from_db(
+    active_users = await redis.set_get_from_db(
         name_key='active_users',
         mode_string=False,
     )
